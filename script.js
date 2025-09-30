@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function clearDisplay() {
     oldPart.textContent = '';
-    newPart.textContent = '\u00A0'+'0';
+    newPart.textContent = '\u00A0' + '0';
     operatorInserted = false;
     result_eq = false;
 }
@@ -17,16 +17,25 @@ function clearDisplay() {
 function deleteDigit() {
     if (newPart.textContent === 'Error') {
         oldPart.textContent = '';
-        newPart.textContent = '\u00A0'+'0';
+        newPart.textContent = '\u00A0' + '0';
         operatorInserted = false;
         result_eq = false;
+        return;
+    }
+
+    if (result_eq) {
+
+        newPart.textContent = '\u00A0' + '0';
+        oldPart.textContent = '';
+        result_eq = false;
+        operatorInserted = false;
         return;
     }
 
     if (newPart.textContent.length > 1) {
         newPart.textContent = newPart.textContent.slice(0, -1);
     } else {
-        newPart.textContent = '\u00A0'+'0';
+        newPart.textContent = '\u00A0' + '0';
     }
 }
 
@@ -40,40 +49,49 @@ function appendNumber(number) {
     }
 
     if (result_eq) {
-        // Начинаем новый ввод после результата
-        newPart.textContent = number;
+
+        newPart.textContent = '\u00A0' + number;
         oldPart.textContent = '';
         result_eq = false;
         operatorInserted = false;
-    } else if (newPart.textContent === '0' || newPart.textContent === '\u00A0'+'0' || newPart.textContent === '') {
+    } else if (newPart.textContent === '0' || newPart.textContent === '\u00A0' + '0' || newPart.textContent === '') {
         newPart.textContent = '\u00A0' + number;
     } else {
         newPart.textContent += number;
     }
 
-    operatorInserted = false;
+
+    if (oldPart.textContent.trim() === '') {
+        operatorInserted = false;
+    }
+
 }
 
 function appendDot() {
     if (newPart.textContent === 'Error') {
         oldPart.textContent = '';
-        newPart.textContent = '\u00A0'+'0.';
+        newPart.textContent = '\u00A0' + '0.';
         operatorInserted = false;
         result_eq = false;
         return;
     }
 
     if (result_eq) {
-        newPart.textContent = '\u00A0'+'0.';
+        newPart.textContent = '\u00A0' + '0.';
         oldPart.textContent = '';
         result_eq = false;
         operatorInserted = false;
     } else if (!newPart.textContent.includes('.')) {
-        if (newPart.textContent === '' || newPart.textContent === '0' || newPart.textContent === '\u00A0'+'0') {
-            newPart.textContent = '\u00A0'+'0.';
+        if (newPart.textContent === '' || newPart.textContent === '0' || newPart.textContent === '\u00A0' + '0') {
+            newPart.textContent = '\u00A0' + '0.';
         } else {
             newPart.textContent += '.';
         }
+    }
+
+
+    if (oldPart.textContent.trim() === '') {
+        operatorInserted = false;
     }
 }
 
@@ -81,17 +99,33 @@ function appendOperator(op) {
     if (newPart.textContent === 'Error') return;
 
     if (result_eq) {
-        // Продолжаем вычисления с текущим результатом
         oldPart.textContent = newPart.textContent + '\u00A0' + op;
         newPart.textContent = '\u00A0' + '0';
         operatorInserted = true;
         result_eq = false;
-    } else if (!operatorInserted) {
+        return;
+    }
+
+    const operators = ['+', '−', '×', '÷', '-', '*', '/']; 
+    let hasOperator = false;
+    if (oldPart.textContent.trim() !== '') {
+        const lastChar = oldPart.textContent.trim().slice(-1);
+
+        if (['+', '-', '*', '/'].includes(lastChar)) {
+            hasOperator = true;
+        }
+    }
+
+    if (!hasOperator) {
+
         oldPart.textContent = newPart.textContent + '\u00A0' + op;
         newPart.textContent = '\u00A0' + '0';
         operatorInserted = true;
     } else {
+
         oldPart.textContent = oldPart.textContent.slice(0, -1) + op;
+
+        operatorInserted = true;
     }
 }
 
@@ -133,4 +167,3 @@ window.appendDot = appendDot;
 window.appendOperator = appendOperator;
 window.calculateResult = calculateResult;
 window.deleteDigit = deleteDigit;
-
